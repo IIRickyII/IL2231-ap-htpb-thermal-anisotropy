@@ -25,14 +25,14 @@ Before executing numerical simulations, calculate the exact theoretical effectiv
 
 1. Execute the Python baseline script:
    ```bash
-   python week1_analytical_baselines.py
+   python week1/week1_analytical_baselines.py
    ```
 2. **Mathematical Output:**
    * **Series Limit:** $0.2436 \text{ W/(m}\cdot\text{K)}$ (Heat flow perpendicular to material layers).
    * **Parallel Limit:** $0.3085 \text{ W/(m}\cdot\text{K)}$ (Heat flow parallel to material layers).
    * *Validation Standard:* All subsequent COMSOL RVE heat-transfer outputs must match these bounds to a tolerance of $1\times 10^{-4}$.
 
-### Step 2: Homogeneous Isotropic Benchmark (`homogeneous_benchmark.mph`)
+### Step 2: Homogeneous Isotropic Benchmark (`week1/homogeneous_benchmark.mph`)
 This model proves the base $\Delta T$ boundary application evaluates correctly across a uniform domain.
 
 **1. Base Architecture**
@@ -58,7 +58,7 @@ This model proves the base $\Delta T$ boundary application evaluates correctly a
 * Given $L = 0.001\text{ m}$, $A = 0.001\text{ m}$, and $\Delta T = 20\text{ K}$, divide $Q$ by 20. 
 * **Finding:** $k_{eff} = 0.167 \text{ W/(m}\cdot\text{K)}$. The solver perfectly reconstructs the inputted isotropic material property.
 
-### Step 3: Two-Layer Composite Limits (`twolayer_benchmark.mph`)
+### Step 3: Two-Layer Composite Limits (`week1/twolayer_benchmark.mph`)
 This model slices the geometry into two discrete material phases to verify interface heat transfer computation.
 
 **1. Geometry Slicing**
@@ -76,7 +76,7 @@ This model slices the geometry into two discrete material phases to verify inter
 * **Calculation:** The table outputs $Q = 4.8720 \text{ W/m}$. Dividing by 20 yields $k_{eff} = 0.2436 \text{ W/(m}\cdot\text{K)}$. 
 * **Finding:** Numerical output perfectly matches the theoretical series limit.
 
-**4. Parallel Limit Validation (`twolayer_parallel_benchmark.mph`)**
+**4. Parallel Limit Validation (`week1/twolayer_parallel_benchmark.mph`)**
 * Shift boundaries 90 degrees: Apply `310 K` to the top edges of both domains. Apply `290 K` to the bottom edges. Left/right boundaries remain insulated.
 * Compute study. Extract `ht.ndflux` via Line Integration on the bottom boundaries.
 * **Calculation:** The table outputs $Q = 6.1700 \text{ W/m}$. Dividing by 20 yields $k_{eff} = 0.3085 \text{ W/(m}\cdot\text{K)}$.
