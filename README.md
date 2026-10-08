@@ -91,7 +91,58 @@ This model slices the geometry into two discrete material phases to verify inter
 
 ---
 
-## Upcoming Workflow (Week 2-4)
-* **Week 2:** Implementation of the Hermans orientation factor ($S$). Mapping of $S$ (0 to 1.0) to an effective anisotropic conductivity tensor for the CNT/HTPB binder.
-* **Week 3:** Generation of 2D non-overlapping heterogeneous AP particle RVEs across 60%, 70%, and 80% volume fractions. Introduction of Kapitza interfacial thermal resistance parameters.
-* **Week 4:** Extraction of parallel ($k_{||}$) and perpendicular ($k_{\perp}$) effective thermal conductivities. Calculation of the anisotropy-retention factor ($R_A$).
+## Phase 2: Multiscale Tensor Injection (Week 2)
+Week 2 bridges the nanoscale CNT parameters to the macroscale composite by applying **Nan's Effective Medium Theory (EMT)** coupled with the **Hermans Orientation Factor ($S$)**. The isotropic HTPB binder was converted into a dynamic, anisotropic $2 \times 2$ diagonal tensor.
+
+### CNT Parameters & Kapitza Resistance
+We introduced specific nanoscale variables into the COMSOL Global Parameters to calculate the intrinsic interfacial dampening caused by the Kapitza thermal resistance ($R_k$):
+* **$V_f$ (CNT Volume Fraction):** $0.05$ (5%)
+* **$k_c$ (Intrinsic CNT Conductivity):** $3000 \text{ W/(m}\cdot\text{K)}$
+* **$d_{cnt}$ / $L_{cnt}$ (CNT Dimensions):** $10 \text{ nm}$ / $10 \text{ \mu m}$
+* **$R_k$ (Kapitza Resistance):** $1 \times 10^{-8} \text{ m}^2\cdot\text{K/W}$
+
+These parameters allow the derivation of the fully aligned theoretical limits for the CNT/HTPB matrix:
+* **$k_{para}$ (Ideal Longitudinal Limit):** $21.587 \text{ W/(m}\cdot\text{K)}$
+* **$k_{perp}$ (Ideal Transverse Limit):** $0.175 \text{ W/(m}\cdot\text{K)}$
+
+### The Hermans Tensor Mapping
+To orient the conductivity dynamically in COMSOL, the HTPB material was assigned a **Diagonal** tensor. The spatial conductivities $k_{xx}$ and $k_{yy}$ are defined by the Hermans Orientation Factor ($S$), which spans from $-0.5$ (perpendicular alignment) to $1.0$ (perfect parallel alignment):
+
+$$k_{yy}(S) = k_{perp} + (k_{para} - k_{perp}) \frac{2S + 1}{3}$$
+$$k_{xx}(S) = k_{perp} + (k_{para} - k_{perp}) \frac{1 - S}{3}$$
+
+### Week 2 Validations
+We tested the tensor logic on the 50/50 AP/HTPB parallel boundary configuration. Both extremes were analytically calculated and numerically validated.
+
+**1. Perfect Alignment ($S = 1.0$) -> `twolayer_parallel_benchmark.mph`**
+* **Physical state:** CNTs are perfectly bridging the top-to-bottom thermal gradient within the binder phase.
+* **Analytical $k_{eff}$:** $11.018 \text{ W/(m}\cdot\text{K)}$
+* **COMSOL Heat Flux ($Q$):** $220.37 \text{ W/m}$ (Exactly matches theoretical limit).
+
+**2. Random Orientation ($S = 0.0$) -> `twolayer_parallel_random.mph`**
+* **Physical state:** CNTs are randomly distributed in 3D space. The tensor collapses into an isotropic state.
+* **Analytical $k_{eff}$:** $3.881 \text{ W/(m}\cdot\text{K)}$
+* **COMSOL Heat Flux ($Q$):** $77.628 \text{ W/m}$ (Exactly matches theoretical limit).
+
+---
+
+## Reproducibility Protocol
+
+### COMSOL Execution & Verification
+To verify the numerical outputs of any `.mph` file in this repository:
+1. Open the file in **COMSOL Multiphysics**.
+2. Navigate to **Model Builder** > **Study 1**. Click **Compute**.
+3. Navigate to **Results** > **Derived Values** > **Line Integration 1**.
+4. Click **Evaluate**.
+5. The `Table` tab will output the **normal conductive heat flux** ($Q$) in $\text{W/m}$.
+6. Calculate the effective thermal conductivity:
+   $$k_{eff} = \frac{Q \cdot L}{A \cdot \Delta T}$$
+   *(For all current benchmarks: $L = 0.001\text{ m}$, $A = 0.001\text{ m}$, $\Delta T = 20\text{ K}$. Divide the total heat flux by 20).*
+
+To test different CNT orientations, navigate to **Global Definitions** > **Parameters 1**, alter the value of `S_factor`, and recompute the study.
+
+---
+
+## Upcoming Workflow (Week 3-4)
+* **Week 3:** Generation of 2D non-overlapping heterogeneous AP particle RVEs across 60%, 70%, and 80% volume fractions. Transition from simple geometric layers to random microstructures.
+* **Week 4:** Extraction of parallel ($k_{||}$) and perpendicular ($k_{\perp}$) effective thermal conductivities on the full RVEs. Calculation of the anisotropy-retention factor ($R_A$).
