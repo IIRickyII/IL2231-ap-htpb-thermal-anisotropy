@@ -140,7 +140,7 @@ To verify the numerical outputs of any `.mph` file in this repository:
 
    $$k_{eff} = \frac{Q \cdot L}{A \cdot \Delta T}$$
 
-   *(For all current benchmarks: $L = 0.001\text{ m}$, $A = 0.001\text{ m}$, $\Delta T = 20\text{ K}$. Divide the total heat flux by 20).*
+   **Note:** For all current benchmarks, $L = 0.001\text{ m}$, $A = 0.001\text{ m}$, and $\Delta T = 20\text{ K}$. Divide the total heat flux by 20.
 
 To test different CNT orientations, navigate to **Global Definitions** > **Parameters 1**, alter the value of `S_factor`, and recompute the study.
 
