@@ -98,7 +98,7 @@ Week 2 bridges the nanoscale CNT parameters to the macroscale composite by apply
 We introduced specific nanoscale variables into the COMSOL Global Parameters to calculate the intrinsic interfacial dampening caused by the Kapitza thermal resistance ($R_k$):
 * **$V_f$ (CNT Volume Fraction):** $0.05$ (5%)
 * **$k_c$ (Intrinsic CNT Conductivity):** $3000 \text{ W/(m}\cdot\text{K)}$
-* **$d_{cnt}$ / $L_{cnt}$ (CNT Dimensions):** $10 \text{ nm}$ / $10 \text{ \mu m}$
+* **$d_{cnt}$ / $L_{cnt}$ (CNT Dimensions):** $10 \text{ nm}$ / $10 \ \mu\text{m}$
 * **$R_k$ (Kapitza Resistance):** $1 \times 10^{-8} \text{ m}^2\cdot\text{K/W}$
 
 These parameters allow the derivation of the fully aligned theoretical limits for the CNT/HTPB matrix:
@@ -109,6 +109,7 @@ These parameters allow the derivation of the fully aligned theoretical limits fo
 To orient the conductivity dynamically in COMSOL, the HTPB material was assigned a **Diagonal** tensor. The spatial conductivities $k_{xx}$ and $k_{yy}$ are defined by the Hermans Orientation Factor ($S$), which spans from $-0.5$ (perpendicular alignment) to $1.0$ (perfect parallel alignment):
 
 $$k_{yy}(S) = k_{perp} + (k_{para} - k_{perp}) \frac{2S + 1}{3}$$
+
 $$k_{xx}(S) = k_{perp} + (k_{para} - k_{perp}) \frac{1 - S}{3}$$
 
 ### Week 2 Validations
@@ -136,7 +137,9 @@ To verify the numerical outputs of any `.mph` file in this repository:
 4. Click **Evaluate**.
 5. The `Table` tab will output the **normal conductive heat flux** ($Q$) in $\text{W/m}$.
 6. Calculate the effective thermal conductivity:
+
    $$k_{eff} = \frac{Q \cdot L}{A \cdot \Delta T}$$
+
    *(For all current benchmarks: $L = 0.001\text{ m}$, $A = 0.001\text{ m}$, $\Delta T = 20\text{ K}$. Divide the total heat flux by 20).*
 
 To test different CNT orientations, navigate to **Global Definitions** > **Parameters 1**, alter the value of `S_factor`, and recompute the study.
