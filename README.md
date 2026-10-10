@@ -161,6 +161,40 @@ The exported DXF coordinates are imported into COMSOL with **Form solids** activ
 * **Inclusion Phase:** Dispersed AP particles are assigned isotropic properties ($0.45 \text{ W/(m}\cdot\text{K)}$).
 * **Interfacial Boundaries:** To physically replicate the macroscale Kapitza thermal contact resistance ($R_s = 1 \times 10^{-4} \text{ m}^2\cdot\text{K/W}$), all internal AP-HTPB boundaries are selected and modeled as a **Nonlayered shell** using the Thin Layer node.
 
+### COMSOL Recreation Guide
+
+Because COMSOL `.mph` files containing complex meshed microstructures easily exceed GitHub's limit, they are not tracked in this repository. One can recreate the validated Week 3 models by following this protocol:
+
+**Step 1: Workspace Initialization**
+1. Open COMSOL Multiphysics > **Model Wizard** > **2D**.
+2. Select **Heat Transfer in Solids (ht)** > **Add** > **Study** > **Stationary** > **Done**.
+3. Under **Global Definitions > Parameters 1**, input the Week 2 CNT variables ($V_f$, $R_k$, $S\_factor = 1.0$) and the Hermans Tensor equations ($k\_{xx}$ and $k\_{yy}$).
+
+**Step 2: Geometry Import**
+1. Right-click **Geometry 1** > **Import**.
+2. Browse to the generated `.dxf` file (e.g., `rve_60.dxf`).
+3. **CRITICAL:** Check the box for **Form solids** in the Import settings.
+4. Click **Build All Objects**.
+
+**Step 3: Material Mapping**
+1. Add a Blank Material named **AP**. Select all internal circular domains. Set thermal conductivity ($k$) to `0.45 [W/(m*K)]`.
+2. Add a Blank Material named **HTPB Tensor**. Select the background square domain. Set thermal conductivity to **Diagonal**. Input `k_xx` for $k_{11}$ and $k_{33}$, and `k_yy` for $k_{22}$.
+3. *Note: If COMSOL flags missing Density/Heat Capacity, enter `1` for both materials to silence the GUI. The Stationary solver mathematically ignores these values.*
+
+**Step 4: Interfacial Boundary (Kapitza Resistance)**
+1. Right-click **Heat Transfer in Solids** > **Thin Layer**.
+2. Select all internal circular boundaries. *(Tip: Press Ctrl/Cmd+A to select everything, then click the 4 outer straight edges to deselect them).*
+3. Under **Shell Properties**, set Shell type to **Nonlayered shell**.
+4. Set **Layer type** to **Thermally thick approximation**.
+5. Set **Specify** to **Thermal resistance**. Input `1e-4` for $R_s$.
+6. Set $L_{th}$ to `1[nm]` to provide a nominal gap for the transient solver mass matrix.
+
+**Step 5: Execution & Post-Processing**
+1. Apply **Temperature 1** (`310 K`) to the top outer boundary.
+2. Apply **Temperature 2** (`290 K`) to the bottom outer boundary.
+3. Compute the study.
+4. Go to **Results** > **Derived Values** > **Line Integration**. Select the bottom `290 K` boundary, enter expression `ht.ndflux`, and click **Evaluate**.
+
 ### Week 3 Macro-Scale Convergence Data
 Data is extracted via normal conductive heat flux ($Q$) along the $290\text{ K}$ boundary ($\Delta T = 20\text{ K}$).
 
