@@ -1,0 +1,2 @@
+*.mph filter=lfs diff=lfs merge=lfs -text
+*.mph.lock filter=lfs diff=lfs merge=lfs -text
