@@ -146,6 +146,65 @@ To test different CNT orientations, navigate to **Global Definitions** > **Param
 
 ---
 
-## Upcoming Workflow (Week 3-4)
-* **Week 3:** Generation of 2D non-overlapping heterogeneous AP particle RVEs across 60%, 70%, and 80% volume fractions. Transition from simple geometric layers to random microstructures.
-* **Week 4:** Extraction of parallel ($k_{||}$) and perpendicular ($k_{\perp}$) effective thermal conductivities on the full RVEs. Calculation of the anisotropy-retention factor ($R_A$).
+## Phase 3: Heterogeneous Microstructure Generation (Week 3)
+To transition from simple geometric layers to accurate composite microstructures, we generated 2D non-overlapping Representative Volume Elements (RVEs) of the AP/HTPB mixture across 60%, 70%, and 80% volume fractions.
+
+### The Unified Geometry Engine (`rve_generator.py`)
+To prevent thermodynamic jamming at high volume fractions, we implemented a stabilized Random Sequential Adsorption (RSA) algorithm. The Python script dynamically shifts from a bimodal to a trimodal particle distribution and tightens mesh collision tolerances to $0.2 \ \mu\text{m}$.
+
+* **60% & 70% $V_f$:** Bimodal distribution ($40 \ \mu\text{m}$ and $8-10 \ \mu\text{m}$ radii).
+* **80% $V_f$:** Trimodal distribution ($40 \ \mu\text{m}$, $10 \ \mu\text{m}$, and $3 \ \mu\text{m}$ radii) targeting up to 1.5 million brute-force collision iterations to shatter the topological jamming limit.
+
+### COMSOL Implementation
+The exported DXF coordinates are imported into COMSOL with **Form solids** activated to map native 2D boundaries. 
+* **Matrix Phase:** Continuous HTPB is assigned the anisotropic diagonal tensor (evaluated at the $S = 1.0$ limit).
+* **Inclusion Phase:** Dispersed AP particles are assigned isotropic properties ($0.45 \text{ W/(m}\cdot\text{K)}$).
+* **Interfacial Boundaries:** To physically replicate the macroscale Kapitza thermal contact resistance ($R_s = 1 \times 10^{-4} \text{ m}^2\cdot\text{K/W}$), all internal AP-HTPB boundaries are selected and modeled as a **Nonlayered shell** using the Thin Layer node.
+
+### Week 3 Macro-Scale Convergence Data
+Data is extracted via normal conductive heat flux ($Q$) along the $290\text{ K}$ boundary ($\Delta T = 20\text{ K}$).
+
+| Volume Fraction ($V_f$) | Algorithm | Heat Flux ($Q$) | Effective Conductivity ($k_{eff}$) |
+| :--- | :--- | :--- | :--- |
+| **0.60** | Bimodal | $31.587 \text{ W/m}$ | $1.579 \text{ W/(m}\cdot\text{K)}$ |
+| **0.70** | Bimodal | $23.330 \text{ W/m}$ | $1.166 \text{ W/(m}\cdot\text{K)}$ |
+| **0.80** | Trimodal | $18.557 \text{ W/m}$ | $0.928 \text{ W/(m}\cdot\text{K)}$ |
+
+**Physics Validation:** The thermal degradation scales perfectly with the microstructural geometry. At 80% volume fraction, the thousands of $3 \ \mu\text{m}$ inclusions exponentially inflate the internal interface surface area. Kapitza resistance entirely dominates the phonon transport networks, stripping the macroscopic conductivity below $1.0\text{ W/(m}\cdot\text{K)}$ despite the perfectly aligned CNT-reinforced binder.
+
+---
+
+## Reproducibility Protocol
+
+### 1. Generating RVE Geometries
+Execute the Python solver to generate the bimodal and trimodal DXF CAD coordinates:
+```bash
+python week3/rve_generator.py
+```
+
+### 2. Analytical Ground Truth Calculation (Week 1/2)
+Execute the Python baseline script to calculate the theoretical effective thermal conductivities for the simple two-layer composite limits. 
+```bash
+python week1/week1_analytical_baselines.py
+```
+
+### 3. COMSOL Execution & Verification
+To verify the numerical outputs of any `.mph` file in this repository:
+
+1. Open the file in **COMSOL Multiphysics**.
+2. Navigate to **Model Builder** > **Study 1**. Click **Compute**.
+3. Navigate to **Results** > **Derived Values** > **Line Integration 1**.
+4. Click **Evaluate**.
+5. The `Table` tab will output the **normal conductive heat flux** ($Q$) in $\text{W/m}$.
+6. Calculate the effective thermal conductivity:
+
+**Note:** For all current benchmarks, $L = 0.001\text{ m}$, $A = 0.001\text{ m}$, and $\Delta T = 20\text{ K}$. Divide the total heat flux by 20.
+
+$$k_{eff} = \frac{Q \cdot L}{A \cdot \Delta T}$$
+
+To test different CNT orientations, navigate to **Global Definitions** > **Parameters 1**, alter the value of `S_factor`, and recompute the study.
+
+---
+
+## Upcoming Workflow (Week 4)
+* **Week 4:** Extraction of perpendicular ($k_{\perp}$) effective thermal conductivities on the full RVEs by rotating the thermal gradient or tensor parameters. Calculation of the anisotropy-retention factor ($R_A$) to conclude the multiscale study.

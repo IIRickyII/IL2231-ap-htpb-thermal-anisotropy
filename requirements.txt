@@ -1,0 +1,4 @@
+numpy
+ezdxf
+math
+os
